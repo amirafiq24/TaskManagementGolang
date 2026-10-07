@@ -1,0 +1,53 @@
+
+
+html, body {
+    margin: 0;
+    padding: 10px;
+    font-family: "Inter", sans-serif;
+    color: rgb(5, 36, 12);
+    background-color: rgb(245, 250, 240);
+}
+
+button {
+    background-color: rgb(7, 63, 12);
+    color: rgb(245, 255, 235);
+    padding: 10px 20px;
+    border-radius: 10px;
+    font-weight: bold;
+}
+
+th, td {
+    padding: 12px 16px;
+    text-align: left;
+}
+
+h3, h2, h1, p, ul, li {
+  color: rgb(5, 36, 12);
+  padding: 0 24px;  
+}
+
+h2 {
+    margin-top: 24px;
+}
+
+input {
+  border: 1px solid #999;
+  padding: 6px 8px;
+  border-radius: 4px;
+  margin: 8px;
+}
+
+select {
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  background: white;
+  font-size: 10px;
+  cursor: pointer;
+  margin-right: 12px;
+}
+
+select:focus {
+  outline: none;
+  border-color: #555;
+}

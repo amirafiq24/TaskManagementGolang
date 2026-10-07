@@ -1,0 +1,15 @@
+$kind: http-request
+name: Create Task
+method: POST
+url: '{{baseUrl}}/tasks'
+order: 2000
+headers:
+  - key: Content-Type
+    value: application/json
+body:
+  type: json
+  content: |-
+    {
+      "title": "My first task",
+      "status": "pending"
+    }

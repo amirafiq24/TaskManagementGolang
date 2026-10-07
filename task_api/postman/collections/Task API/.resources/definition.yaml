@@ -1,0 +1,3 @@
+$kind: collection
+name: Task API
+description: 'A simple Task API built with Go and Echo framework. Manage tasks with CRUD operations.'
