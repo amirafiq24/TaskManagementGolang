@@ -5,6 +5,7 @@ import (
 	"os"
 	"task_api/config"
 	"task_api/internal/database"
+	"task_api/internal/observability"
 	"task_api/internal/server"
 )
 
@@ -19,7 +20,9 @@ func main() {
 
 	var level slog.Level
 	_ = level.UnmarshalText([]byte(cfg.Log.Level))
-	slog.SetDefault(slog.New(slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{Level: level})))
+	slog.SetDefault(slog.New(observability.ContextHandler{
+		Handler: slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{Level: &level}),
+	}))
 
 	db, err := database.ConnectDB(&cfg.DB)
 	if err != nil {

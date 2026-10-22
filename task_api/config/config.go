@@ -10,10 +10,11 @@ import (
 
 type (
 	Config struct {
-		Server ServerConfig `mapstructure:"server"`
-		DB     DBConfig     `mapstructure:"db"`
-		Redis  RedisConfig  `mapstructure:"redis"`
-		Log    LogConfig    `mapstructure:"log"`
+		Server  ServerConfig  `mapstructure:"server"`
+		DB      DBConfig      `mapstructure:"db"`
+		Redis   RedisConfig   `mapstructure:"redis"`
+		Log     LogConfig     `mapstructure:"log"`
+		Timeout TimeoutConfig `mapstructure:"timeout"`
 	}
 
 	ServerConfig struct {
@@ -39,6 +40,10 @@ type (
 
 	LogConfig struct {
 		Level string `mapstructure:"level"`
+	}
+
+	TimeoutConfig struct {
+		RequestSeconds int `mapstructure:"request_seconds"`
 	}
 )
 

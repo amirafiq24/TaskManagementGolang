@@ -132,10 +132,8 @@ func (h *TaskService) UpdateTask(ctx context.Context, id int, req map[string]int
 		return nil, err
 	}
 
-	err = cache.CacheDeleteTask(ctx, h.Redis, id)
-
-	if err != nil {
-		slog.WarnContext(ctx, "cache delete failed", "error", err)
+	if err := cache.CacheDeleteTask(ctx, h.Redis, id); err != nil {
+		slog.WarnContext(ctx, "cache delete failed", "task_id", id, "error", err)
 	}
 
 	return task, nil
@@ -151,8 +149,6 @@ func (h *TaskService) DeleteTask(ctx context.Context, id int) error {
 	if err != nil {
 		return err
 	}
-
-	err = cache.CacheDeleteTask(ctx, h.Redis, id)
 
 	if err := cache.CacheDeleteTask(ctx, h.Redis, id); err != nil {
 		slog.WarnContext(ctx, "cache delete failed", "task_id", id, "error", err)
