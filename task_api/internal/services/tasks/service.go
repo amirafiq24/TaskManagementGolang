@@ -102,7 +102,7 @@ func (h *TaskService) GetTask(c context.Context, id int) (*models.Task, error) {
 		return nil, err
 	}
 
-	err = cache.CacheSetTask(c, h.Redis, task)
+	err = cache.CacheSetTask(c, h.Redis, task, h.TTL)
 
 	if err != nil {
 		fmt.Println("cache failed")

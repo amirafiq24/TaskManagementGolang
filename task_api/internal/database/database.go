@@ -2,6 +2,7 @@ package database
 
 import (
 	"context"
+	"task_api/config"
 	"time"
 
 	"github.com/redis/go-redis/v9"
@@ -9,9 +10,8 @@ import (
 	"gorm.io/gorm"
 )
 
-func ConnectDB() (*gorm.DB, error) {
-
-	dsn := "host=db user=taskuser password=taskpass dbname=taskdb port=5432 sslmode=disable"
+func ConnectDB(cfg *config.DBConfig) (*gorm.DB, error) {
+	dsn := cfg.GetDSN()
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 
 	if err != nil {
@@ -21,9 +21,9 @@ func ConnectDB() (*gorm.DB, error) {
 	return db, nil
 }
 
-func ConnectRedis() (*redis.Client, error) {
+func ConnectRedis(cfg *config.RedisConfig) (*redis.Client, error) {
 	rdb := redis.NewClient(&redis.Options{
-		Addr: "redis:6379",
+		Addr: cfg.GetRedis(),
 
 		MaxRetries:    -1, // Disable command retries; 0 means default.
 		DialerRetries: 1,  // One connection attempt.

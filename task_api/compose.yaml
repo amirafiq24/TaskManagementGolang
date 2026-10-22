@@ -4,9 +4,11 @@ services:
     ports:
       - "8000:8000"
     environment:
-      DATABASE_URL: postgres://taskuser:taskpass@db:5432/taskdb
+      DB_HOST: db   
+      REDIS_HOST: redis
     depends_on:
       - db
+      - redis
 
   db:
     image: postgres:18

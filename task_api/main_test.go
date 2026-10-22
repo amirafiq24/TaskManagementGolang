@@ -14,12 +14,15 @@ import (
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 
+	"task_api/config"
 	taskhandler "task_api/internal/handlers/tasks"
 	"task_api/internal/models"
 	taskservice "task_api/internal/services/tasks"
 )
 
 func TestHealthHandler(t *testing.T) {
+	cfg := &config.Config{Redis: config.RedisConfig{TTL: 60}}
+
 	dsn := "host=localhost user=taskuser password=taskpass dbname=taskdb_test port=5433 sslmode=disable"
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 
@@ -48,7 +51,7 @@ func TestHealthHandler(t *testing.T) {
 
 	c := e.NewContext(req, rec)
 
-	service := taskservice.NewTaskService(db, rdb)
+	service := taskservice.NewTaskService(db, rdb, time.Duration(cfg.Redis.TTL))
 	handler := taskhandler.NewTaskHandler(service)
 
 	err = handler.CheckHealth(c)
@@ -63,6 +66,7 @@ func TestHealthHandler(t *testing.T) {
 }
 
 func TestCreateTask(t *testing.T) {
+	cfg := &config.Config{Redis: config.RedisConfig{TTL: 60}}
 	dsn := "host=localhost user=taskuser password=taskpass dbname=taskdb_test port=5433 sslmode=disable"
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 
@@ -92,7 +96,8 @@ func TestCreateTask(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	service := taskservice.NewTaskService(db, rdb)
+	service := taskservice.NewTaskService(db, rdb, time.Duration(cfg.Redis.TTL))
+
 	handler := taskhandler.NewTaskHandler(service)
 
 	e := echo.New()

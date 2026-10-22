@@ -1,0 +1,16 @@
+server:          # Config.Server  `mapstructure:"server"`
+  port: 8000     #   ServerConfig.Port
+  env: local
+
+db:              # Config.DB      `mapstructure:"db"`
+  host: localhost
+  port: 5432
+  user: taskuser      # same value as POSTGRES_USER in compose
+  password: taskpass  # same value as POSTGRES_PASSWORD
+  name: taskdb        # same value as POSTGRES_DB
+  sslmode: disable
+
+redis:           # Config.Redis   `mapstructure:"redis"`
+  host: localhost
+  port: 6379
+  ttl: 60

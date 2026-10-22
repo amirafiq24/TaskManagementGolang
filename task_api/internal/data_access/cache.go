@@ -39,7 +39,7 @@ func CacheGetTask(ctx context.Context, rdb *redis.Client, id int) (*models.Task,
 	}
 }
 
-func CacheSetTask(ctx context.Context, rdb *redis.Client, task *models.Task) error {
+func CacheSetTask(ctx context.Context, rdb *redis.Client, task *models.Task, ttl time.Duration) error {
 	// add item to cache
 	key := fmt.Sprintf(`task:%d`, task.ID)
 	value, err := json.Marshal(task)
@@ -48,7 +48,7 @@ func CacheSetTask(ctx context.Context, rdb *redis.Client, task *models.Task) err
 		return err
 	}
 
-	return rdb.Set(ctx, key, value, 60*time.Second).Err()
+	return rdb.Set(ctx, key, value, ttl).Err()
 }
 
 func CacheDeleteTask(ctx context.Context, rdb *redis.Client, id int) error {
