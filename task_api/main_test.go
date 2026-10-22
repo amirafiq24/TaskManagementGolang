@@ -1,15 +1,22 @@
 package main
 
 import (
+	"context"
+	"encoding/json"
 	"net/http"
 	"net/http/httptest"
 	"strings"
 	"testing"
-	"encoding/json"
+	"time"
 
+	"github.com/labstack/echo/v5"
+	"github.com/redis/go-redis/v9"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
-	"github.com/labstack/echo/v5"
+
+	taskhandler "task_api/internal/handlers/tasks"
+	"task_api/internal/models"
+	taskservice "task_api/internal/services/tasks"
 )
 
 func TestHealthHandler(t *testing.T) {
@@ -20,6 +27,20 @@ func TestHealthHandler(t *testing.T) {
 		t.Fatal(err)
 	}
 
+	rdb := redis.NewClient(&redis.Options{
+		Addr:     "localhost:6379",
+		Password: "",
+		DB:       0,
+		Protocol: 2,
+	})
+
+	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+	defer cancel()
+
+	if err := rdb.Ping(ctx).Err(); err != nil {
+		t.Fatal(err)
+	}
+
 	e := echo.New()
 
 	req := httptest.NewRequest(http.MethodGet, "/health", nil)
@@ -27,11 +48,10 @@ func TestHealthHandler(t *testing.T) {
 
 	c := e.NewContext(req, rec)
 
-	h := Handler{
-		DB: db,
-	}
+	service := taskservice.NewTaskService(db, rdb)
+	handler := taskhandler.NewTaskHandler(service)
 
-	err = h.healthHandler(c)
+	err = handler.CheckHealth(c)
 
 	if err != nil {
 		t.Fatal(err)
@@ -50,6 +70,20 @@ func TestCreateTask(t *testing.T) {
 		t.Fatal(err)
 	}
 
+	rdb := redis.NewClient(&redis.Options{
+		Addr:     "localhost:6379",
+		Password: "",
+		DB:       0,
+		Protocol: 2,
+	})
+
+	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+	defer cancel()
+
+	if err := rdb.Ping(ctx).Err(); err != nil {
+		t.Fatal(err)
+	}
+
 	result := db.Exec(
 		"TRUNCATE tasks RESTART IDENTITY",
 	)
@@ -58,9 +92,8 @@ func TestCreateTask(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	h := Handler{
-		DB: db,
-	}
+	service := taskservice.NewTaskService(db, rdb)
+	handler := taskhandler.NewTaskHandler(service)
 
 	e := echo.New()
 
@@ -80,7 +113,7 @@ func TestCreateTask(t *testing.T) {
 
 	c := e.NewContext(req, rec)
 
-	err = h.createTasksHandler(c)
+	err = handler.CreateTask(c)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -89,9 +122,9 @@ func TestCreateTask(t *testing.T) {
 		t.Errorf("Expected 201, got %d", rec.Code)
 	}
 
-	var task Task
+	var task models.Task
 
-	err = json.	Unmarshal(rec.Body.Bytes(), &task)
+	err = json.Unmarshal(rec.Body.Bytes(), &task)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -106,5 +139,5 @@ func TestCreateTask(t *testing.T) {
 
 	if task.ID != 1 {
 		t.Errorf("expected ID 1, got %d", task.ID)
-	}	
+	}
 }
