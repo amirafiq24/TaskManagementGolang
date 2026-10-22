@@ -31,7 +31,6 @@ func CacheGetTask(ctx context.Context, rdb *redis.Client, id int) (*models.Task,
 		return &task, nil
 
 	case errors.Is(err, redis.Nil): //cache miss
-		fmt.Println("cache miss")
 		return nil, nil
 
 	default: // redis error

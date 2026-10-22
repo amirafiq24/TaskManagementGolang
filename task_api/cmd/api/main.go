@@ -13,8 +13,13 @@ func main() {
 
 	cfg, err := config.GetConfig()
 	if err != nil {
-		slog.Error("config setup")
+		slog.Error("config error", "error", err)
+		os.Exit(1)
 	}
+
+	var level slog.Level
+	_ = level.UnmarshalText([]byte(cfg.Log.Level))
+	slog.SetDefault(slog.New(slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{Level: level})))
 
 	db, err := database.ConnectDB(&cfg.DB)
 	if err != nil {

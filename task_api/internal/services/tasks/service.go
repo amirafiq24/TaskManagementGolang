@@ -3,7 +3,6 @@ package tasks
 import (
 	"context"
 	"errors"
-	"fmt"
 	"log/slog"
 	"slices"
 	"strings"
@@ -82,12 +81,17 @@ func (h *TaskService) GetTask(c context.Context, id int) (*models.Task, error) {
 
 	// redis error
 	if err != nil {
-		fmt.Println("redis error")
+		slog.WarnContext(c, "redis error", "task_id", id, "error", err)
 	}
 
 	// cache hit
 	if task != nil {
+		slog.DebugContext(c, "cache hit", "task_id", id)
 		return task, nil
+	}
+
+	if err == nil && task == nil {
+		slog.DebugContext(c, "cache miss", "task_id", id)
 	}
 
 	// here, err = nil, task = nil. means cache miss. retrieve from db
@@ -105,9 +109,9 @@ func (h *TaskService) GetTask(c context.Context, id int) (*models.Task, error) {
 	err = cache.CacheSetTask(c, h.Redis, task, h.TTL)
 
 	if err != nil {
-		fmt.Println("cache failed")
+		slog.WarnContext(c, "cache add failed", "task_id", id, "error", err)
 	} else {
-		fmt.Println("cache add success")
+		slog.DebugContext(c, "cache add success", "task_id", id)
 	}
 
 	return task, nil
@@ -131,7 +135,7 @@ func (h *TaskService) UpdateTask(ctx context.Context, id int, req map[string]int
 	err = cache.CacheDeleteTask(ctx, h.Redis, id)
 
 	if err != nil {
-		slog.ErrorContext(ctx, "cache delete failed", "err", err)
+		slog.WarnContext(ctx, "cache delete failed", "error", err)
 	}
 
 	return task, nil
@@ -150,8 +154,8 @@ func (h *TaskService) DeleteTask(ctx context.Context, id int) error {
 
 	err = cache.CacheDeleteTask(ctx, h.Redis, id)
 
-	if err != nil {
-		fmt.Print("failed to delete cache")
+	if err := cache.CacheDeleteTask(ctx, h.Redis, id); err != nil {
+		slog.WarnContext(ctx, "cache delete failed", "task_id", id, "error", err)
 	}
 
 	return nil

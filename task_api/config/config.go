@@ -13,6 +13,7 @@ type (
 		Server ServerConfig `mapstructure:"server"`
 		DB     DBConfig     `mapstructure:"db"`
 		Redis  RedisConfig  `mapstructure:"redis"`
+		Log    LogConfig    `mapstructure:"log"`
 	}
 
 	ServerConfig struct {
@@ -34,6 +35,10 @@ type (
 		Host string `mapstructure:"host"`
 		Port int    `mapstructure:"port"`
 		TTL  int    `mapstructure:"ttl"`
+	}
+
+	LogConfig struct {
+		Level string `mapstructure:"level"`
 	}
 )
 
